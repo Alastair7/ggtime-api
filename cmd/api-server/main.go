@@ -1,17 +1,13 @@
 package main
 
 import (
-	"github.com/Alastair7/ggtime-api/internal/api"
-
-	"log"
-	"net/http"
+	"github.com/Alastair7/ggtime-api/internal/server"
 )
 
 func main() {
-	http.HandleFunc("/api/healthcheck", api.HealthcheckHandler)
+	server := &server.ApiServer{
+		Address: ":8080",
+	}
 
-	log.Println("Server is running on: http://localhost:8080")
-	log.Println("You can do a checkhealth with /api/checkhealth")
-
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	server.RunServer()
 }

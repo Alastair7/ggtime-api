@@ -1,4 +1,4 @@
-package api
+package handlers
 
 import (
 	"net/http"
@@ -11,7 +11,8 @@ func TestGETHealthcheck(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "api/healthcheck", nil)
 		responseRecorder := httptest.NewRecorder()
 
-		HealthcheckHandler(responseRecorder, request)
+		handler := &HealthCheckHandler{}
+		handler.Get(responseRecorder, request)
 
 		if responseRecorder.Code != http.StatusOK {
 			t.Errorf("Expected status 200, got %d", responseRecorder.Code)
