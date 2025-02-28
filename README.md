@@ -1,4 +1,5 @@
 # GGTIME API
+Test
 ## How to run
 1. Clone the project.
 2. `cd ggtime-api`
