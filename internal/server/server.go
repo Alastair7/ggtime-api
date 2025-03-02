@@ -3,6 +3,7 @@ package server
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/Alastair7/ggtime-api/internal/api/handlers"
 )
@@ -15,8 +16,9 @@ func (a *ApiServer) RunServer() {
 	router := initRouter()
 
 	server := http.Server{
-		Addr:    a.Address,
-		Handler: router,
+		Addr:              a.Address,
+		Handler:           router,
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 
 	log.Println("You can do a checkhealth with /api/checkhealth")
