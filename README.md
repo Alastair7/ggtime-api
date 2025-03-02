@@ -1,5 +1,6 @@
 # GGTIME API
 ![code coverage badge](https://github.com/Alastair7/ggtime-api/actions/workflows/ci.yml/badge.svg)
+
 ## How to run
 1. Clone the project.
 2. `cd ggtime-api`
