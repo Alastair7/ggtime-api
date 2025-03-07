@@ -6,6 +6,10 @@
 2. `cd ggtime-api`
 3. go run cmd/api-server/main.go
 
+### Run with docker
+1. `docker build -t ggtime-api:latest .`
+2. `docker run --name ggtime-container -p 8080:8080 ggtime-api:latest`
+
 ## How to run tests
 ### Run all tests
 1. cd to project root `cd ggtime-api`
