@@ -13,6 +13,7 @@ type ApiServer struct {
 }
 
 func (a *ApiServer) RunServer() {
+
 	router := initRouter()
 
 	server := http.Server{
@@ -23,7 +24,7 @@ func (a *ApiServer) RunServer() {
 
 	log.Println("You can do a checkhealth with /api/checkhealth")
 	log.Println()
-	log.Println("Server is running on: http://localhost:8080")
+	log.Printf("Server is running on: %s", server.Addr)
 
 	log.Fatal(server.ListenAndServe())
 }
