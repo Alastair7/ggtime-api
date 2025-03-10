@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -23,7 +24,7 @@ func (a *ApiServer) RunServer() {
 	}
 
 	log.Println("You can do a checkhealth with /api/checkhealth")
-	log.Println()
+	fmt.Println()
 	log.Printf("Server is running on: %s", server.Addr)
 
 	log.Fatal(server.ListenAndServe())

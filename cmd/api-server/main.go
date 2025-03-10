@@ -12,7 +12,22 @@ import (
 )
 
 func main() {
+	environment := os.Getenv("ENVIRONMENT")
+	if environment != "production" {
+		loadLocalEnvironmentVariables()
+	}
 
+	port := os.Getenv("PORT")
+	apiAddress := fmt.Sprintf(":%s", port)
+
+	server := &server.ApiServer{
+		Address: apiAddress,
+	}
+
+	server.RunServer()
+}
+
+func loadLocalEnvironmentVariables() {
 	rootDir, projectRootError := common.GetProjectRoot()
 	if projectRootError != nil {
 		log.Fatalf("Error during project root loading: %s", projectRootError)
@@ -23,22 +38,4 @@ func main() {
 	if errorDotenv != nil {
 		log.Fatalf("Error loading environment variables %s", errorDotenv)
 	}
-
-	host := os.Getenv("HOST")
-	if host == "" {
-		host = "localhost"
-	}
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	apiAddress := fmt.Sprintf("%s:%s", host, port)
-
-	server := &server.ApiServer{
-		Address: apiAddress,
-	}
-
-	server.RunServer()
 }
