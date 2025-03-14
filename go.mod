@@ -2,6 +2,7 @@ module github.com/Alastair7/ggtime-api
 
 go 1.24.0
 
+
 require (
 	github.com/auth0/go-jwt-middleware/v2 v2.3.0
 	github.com/joho/godotenv v1.5.1

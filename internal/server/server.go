@@ -21,6 +21,7 @@ type ApiServer struct {
 func (a *ApiServer) RunServer() {
 	environment := os.Getenv("ENVIRONMENT")
 
+	router := initRouter()
 	server := http.Server{
 		Addr:              a.Address,
 		Handler:           initRouter(),
