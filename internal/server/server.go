@@ -7,7 +7,11 @@ import (
 	"os"
 	"time"
 
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
+	"github.com/auth0/go-jwt-middleware/v2/validator"
+
 	"github.com/Alastair7/ggtime-api/internal/api/handlers"
+	"github.com/Alastair7/ggtime-api/internal/common"
 )
 
 type ApiServer struct {
@@ -20,7 +24,7 @@ func (a *ApiServer) RunServer() {
 	router := initRouter()
 	server := http.Server{
 		Addr:              a.Address,
-		Handler:           router,
+		Handler:           initRouter(),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
@@ -36,12 +40,21 @@ func (a *ApiServer) RunServer() {
 	log.Fatal(server.ListenAndServe())
 }
 
-func initRouter() *http.ServeMux {
+func initRouter() http.Handler {
 	mux := http.NewServeMux()
+	jwtValidator := common.SetupJwtValidator()
 
 	healthcheckHandler := &handlers.HealthCheckHandler{}
+	var claimsHandler http.Handler = &handlers.ClaimsValidationHandler{}
 
 	mux.HandleFunc("/api/healthcheck", healthcheckHandler.Get)
+	mux.Handle("/api/test", authorizationMiddleware(claimsHandler, jwtValidator))
 
 	return mux
+}
+
+func authorizationMiddleware(next http.Handler, jwtValidator *validator.Validator) http.Handler {
+	middleware := jwtmiddleware.New(jwtValidator.ValidateToken)
+
+	return middleware.CheckJWT(next)
 }
