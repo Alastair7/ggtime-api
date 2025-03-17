@@ -54,10 +54,3 @@ func (j *JwtValidator) Setup(validatorFactory ValidatorFactory) error {
 
 	return nil
 }
-
-func (*JwtValidator) ValidateClaims(ctx context.Context) bool {
-	claims, ok := ctx.Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
-
-	log.Println(claims.RegisteredClaims.Subject)
-	return ok
-}

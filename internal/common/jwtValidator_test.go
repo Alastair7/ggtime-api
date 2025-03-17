@@ -54,6 +54,4 @@ func TestSetupJwtValidator(t *testing.T) {
 			t.Fatalf("Expected validator but got nil")
 		}
 	})
-
-	// If validator success setup return validator.
 }
