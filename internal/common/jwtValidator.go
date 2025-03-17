@@ -8,26 +8,54 @@ import (
 	"github.com/auth0/go-jwt-middleware/v2/validator"
 )
 
-func SetupJwtValidator() *validator.Validator {
-	keyfunc := func(ctx context.Context) (interface{}, error) {
-		return []byte("secret"), nil
-	}
+type ValidatorFactory interface {
+	NewValidator(
+		keyfunc func(context.Context) (interface{}, error),
+		signatureAlgorithm validator.SignatureAlgorithm,
+		issuer string,
+		audience []string,
+	) (*validator.Validator, error)
+}
 
-	jwtValidator, jwtValidatorError := validator.New(
-		keyfunc,
+type DefaultValidatorFactory struct{}
+
+func (d *DefaultValidatorFactory) NewValidator(
+	keyfunc func(context.Context) (interface{}, error),
+	signatureAlgorithm validator.SignatureAlgorithm,
+	issuer string,
+	audience []string,
+) (*validator.Validator, error) {
+
+	return validator.New(keyfunc, signatureAlgorithm, issuer, audience)
+}
+
+type JwtValidator struct {
+	Validator *validator.Validator
+}
+
+func generateKeyFunc(ctx context.Context) (interface{}, error) {
+
+	return []byte("secret"), nil
+}
+
+func (j *JwtValidator) Setup(validatorFactory ValidatorFactory) error {
+	validator, jwtValidatorError := validatorFactory.NewValidator(
+		generateKeyFunc,
 		validator.HS256,
-		"https://ISSUER_URL/",
+		"https://ISSUER/",
 		[]string{"AUDIENCE"},
 	)
 
 	if jwtValidatorError != nil {
-		log.Fatalf("Failed to set up the jwt validator %v", jwtValidatorError)
+		return jwtValidatorError
 	}
 
-	return jwtValidator
+	j.Validator = validator
+
+	return nil
 }
 
-func ValidateClaims(ctx context.Context) bool {
+func (*JwtValidator) ValidateClaims(ctx context.Context) bool {
 	claims, ok := ctx.Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
 
 	log.Println(claims.RegisteredClaims.Subject)
