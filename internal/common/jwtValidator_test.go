@@ -1,57 +1,37 @@
 package common
 
 import (
-	"context"
 	"errors"
 	"testing"
 
 	"github.com/auth0/go-jwt-middleware/v2/validator"
 )
 
-type MockValidatorFactory struct {
-	mockValidator *validator.Validator
-	mockError     error
-}
-
-func (m *MockValidatorFactory) NewValidator(
-	keyfunc func(context.Context) (interface{}, error),
-	signatureAlgorithm validator.SignatureAlgorithm,
-	issuer string,
-	audience []string,
-) (*validator.Validator, error) {
-
-	return m.mockValidator, m.mockError
-}
-
 func TestSetupJwtValidator(t *testing.T) {
 	t.Run("When jwt validator setup fails then return error", func(t *testing.T) {
-		mockFactory := &MockValidatorFactory{
-			mockValidator: nil,
-			mockError:     errors.New("Error setting up the validator")}
-		jwtValidator := &JwtValidator{}
-		errorResult := jwtValidator.Setup(mockFactory)
 
-		if errorResult.Error() != mockFactory.mockError.Error() {
-			t.Fatalf("jwt validator is not empty")
+		validatorCreator := func() (*validator.Validator, error) {
+			return nil, errors.New("Falied to create JWT Validator")
+		}
+
+		result, resultError := NewValidator(validatorCreator)
+
+		if resultError == nil {
+			t.Fatalf("Expected error but got %v", result)
 		}
 
 	})
 
 	t.Run("When jwt validator setup success then return validator", func(t *testing.T) {
-		mockFactory := &MockValidatorFactory{
-			mockValidator: &validator.Validator{},
-			mockError:     nil,
+		validatorCreator := func() (*validator.Validator, error) {
+			return &validator.Validator{}, nil
 		}
 
-		jwtValidator := &JwtValidator{}
-		errorResult := jwtValidator.Setup(mockFactory)
+		result, resultError := NewValidator(validatorCreator)
 
-		if errorResult != nil {
-			t.Fatalf("Expected no errors but got %v", errorResult.Error())
+		if resultError != nil {
+			t.Fatalf("Expected validator but got %v", result)
 		}
 
-		if jwtValidator.Validator == nil {
-			t.Fatalf("Expected validator but got nil")
-		}
 	})
 }

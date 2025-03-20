@@ -21,14 +21,13 @@ type ApiServer struct {
 func (a *ApiServer) RunServer() {
 	environment := os.Getenv("ENVIRONMENT")
 
-	router := initRouter()
 	server := http.Server{
 		Addr:              a.Address,
 		Handler:           initRouter(),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
-	log.Println("You can do a checkhealth with /api/checkhealth")
+	log.Println("GET /api/checkhealth")
 	fmt.Println()
 
 	if environment != "production" {
@@ -42,13 +41,18 @@ func (a *ApiServer) RunServer() {
 
 func initRouter() http.Handler {
 	mux := http.NewServeMux()
-	jwtValidator := common.SetupJwtValidator()
 
 	healthcheckHandler := &handlers.HealthCheckHandler{}
-	var claimsHandler http.Handler = &handlers.ClaimsValidationHandler{}
+	claimsHandler := &handlers.ClaimsValidationHandler{}
+
+	jwtValidator, jwtValidatorError := common.NewValidator(nil)
+
+	if jwtValidatorError != nil {
+		log.Fatalf("Error creating the JWT Validator: %v", jwtValidatorError)
+	}
 
 	mux.HandleFunc("/api/healthcheck", healthcheckHandler.Get)
-	mux.Handle("/api/test", authorizationMiddleware(claimsHandler, jwtValidator))
+	mux.Handle("/api/protected", authorizationMiddleware(http.HandlerFunc(claimsHandler.HandleClaimsValidation), jwtValidator))
 
 	return mux
 }
@@ -57,4 +61,5 @@ func authorizationMiddleware(next http.Handler, jwtValidator *validator.Validato
 	middleware := jwtmiddleware.New(jwtValidator.ValidateToken)
 
 	return middleware.CheckJWT(next)
+
 }
