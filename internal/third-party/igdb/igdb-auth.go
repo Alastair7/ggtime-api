@@ -11,10 +11,25 @@ type Authenticator interface {
 	GetAccessToken() (string, error)
 }
 
+type poster interface {
+	post() (*http.Response, error)
+}
+
 type IgdbAuthenticator struct {
 	AuthUrl      string
 	ClientId     string
 	ClientSecret string
+	poster
+}
+
+func (i *IgdbAuthenticator) post() (*http.Response, error) {
+	igdbResponse, igdbError := http.Post(i.AuthUrl, "application/json", nil)
+
+	if igdbError != nil {
+		return nil, igdbError
+	}
+
+	return igdbResponse, nil
 }
 
 type IgdbAuthenticatorResponse struct {
@@ -23,12 +38,13 @@ type IgdbAuthenticatorResponse struct {
 	TokenType   string `json:"token_type"`
 }
 
-// TODO: Test this and change http get with a Post
 func (i *IgdbAuthenticator) GetAccessToken() (string, error) {
-	igdbResponse, igdbError := http.Get(i.AuthUrl)
+
+	igdbResponse, igdbError := i.poster.post()
+
 	if igdbError != nil {
-		log.Fatalf("Unable to get access token from IGDB. Details: %v",
-			igdbError)
+		return "", igdbError
+
 	}
 
 	responseBody, readingError := io.ReadAll(igdbResponse.Body)
