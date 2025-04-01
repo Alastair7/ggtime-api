@@ -1,19 +1,30 @@
 package igdb
 
-type IgdbService struct {
+import (
+	"net/http"
+	"net/url"
+)
+
+type IgdbClient struct {
 	baseUrl string
-	auth    Authenticator
+	httpClient *http.Client
 }
 
-func NewIgdbService(auth Authenticator) *IgdbService {
+func NewIgdbClient() *IgdbClient {
 
-	return &IgdbService{
+	return &IgdbClient{
 		baseUrl: "https://api.igdb.com/v4",
-		auth:    auth,
 	}
 }
 
-func (ig *IgdbService) Authenticate() (string, error) {
+func (ig *IgdbClient) Authenticate() (string, error) {
+	uri, parsingError := url.Parse(ig.baseUrl)
 
-	return ig.auth.GetAccessToken()
+	if parsingError != nil {
+		return "", parsingError
+	}
+
+	ig.
+
+	return uri.Host, nil
 }

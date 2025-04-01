@@ -14,8 +14,29 @@ import (
 	"github.com/Alastair7/ggtime-api/internal/common"
 )
 
+type ServerConfiguration struct {
+	Address    string
+	Port       string
+	HttpClient *http.Client
+}
+
+func NewServerConfiguration() ServerConfiguration {
+	port := os.Getenv("PORT")
+	address := fmt.Sprintf(":%s", port)
+
+	return ServerConfiguration{Address: address, Port: port, HttpClient: &http.Client{}}
+}
+
 type ApiServer struct {
-	Address string
+	Address    string
+	HttpClient *http.Client
+}
+
+func NewApiServer(serverConfig ServerConfiguration) ApiServer {
+	return ApiServer{
+		Address:    serverConfig.Address,
+		HttpClient: serverConfig.HttpClient,
+	}
 }
 
 func (a *ApiServer) RunServer() {
@@ -23,7 +44,7 @@ func (a *ApiServer) RunServer() {
 
 	server := http.Server{
 		Addr:              a.Address,
-		Handler:           initRouter(),
+		Handler:           initHandlers(a.HttpClient),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
@@ -39,20 +60,12 @@ func (a *ApiServer) RunServer() {
 	log.Fatal(server.ListenAndServe())
 }
 
-func initRouter() http.Handler {
+func initHandlers(httpClient *http.Client) http.Handler {
 	mux := http.NewServeMux()
 
 	healthcheckHandler := &handlers.HealthCheckHandler{}
-	claimsHandler := &handlers.ClaimsValidationHandler{}
-
-	jwtValidator, jwtValidatorError := common.NewValidator(nil)
-
-	if jwtValidatorError != nil {
-		log.Fatalf("Error creating the JWT Validator: %v", jwtValidatorError)
-	}
 
 	mux.HandleFunc("/api/healthcheck", healthcheckHandler.Get)
-	mux.Handle("/api/protected", authorizationMiddleware(http.HandlerFunc(claimsHandler.HandleClaimsValidation), jwtValidator))
 
 	return mux
 }
