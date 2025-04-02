@@ -16,7 +16,7 @@ func InitRouter(httpClient *http.Client) http.Handler {
 	gamesHandler := handlers.NewGamesHandler(igdbService)
 
 	mux.HandleFunc("/api/healthcheck", healthcheckHandler.Get)
-	mux.HandleFunc("api/videogames", gamesHandler.Get)
+	mux.HandleFunc("/api/videogames", gamesHandler.Get)
 
 	return mux
 }
