@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -19,9 +20,18 @@ func NewGamesHandler(igdbClient *igdb.IgdbClient) *GamesHandler {
 }
 
 func (g *GamesHandler) Get(w http.ResponseWriter, req *http.Request) {
-	igdbError := g.IgdbClient.GetGames()
+	result, igdbError := g.IgdbClient.GetGames()
 
 	if igdbError != nil {
 		log.Fatalf("Error with IGDB Service: %v", igdbError)
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	encodingError := json.NewEncoder(w).Encode(result)
+	if encodingError != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
 }

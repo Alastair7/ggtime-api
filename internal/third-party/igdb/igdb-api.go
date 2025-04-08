@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
+
+	"github.com/Alastair7/ggtime-api/internal/models"
 )
 
 type IgdbClient struct {
@@ -65,25 +66,25 @@ func (ig *IgdbClient) Authenticate() (string, error) {
 	return tokenData.AccessToken, nil
 }
 
-func (ig *IgdbClient) GetGames() error {
+func (ig *IgdbClient) GetGames() ([]models.GamesResponse, error) {
 	uri, parsingError := url.Parse(ig.baseUrl)
 
 	if parsingError != nil {
-		return parsingError
+		return []models.GamesResponse{}, parsingError
 	}
 
 	uri = uri.JoinPath("games")
 
-	bodyData := bytes.NewBufferString("fields name; limit 10;")
+	bodyData := bytes.NewBufferString("fields age_ratings,name,game_type ; limit 10;")
 
 	token, authenticationError := ig.Authenticate()
 	if authenticationError != nil {
-		return authenticationError
+		return []models.GamesResponse{}, authenticationError
 	}
 
 	req, requestError := http.NewRequest("POST", uri.String(), bodyData)
 	if requestError != nil {
-		return requestError
+		return []models.GamesResponse{}, requestError
 	}
 	req.Header.Add("Authorization", "Bearer "+token)
 	req.Header.Add("Content-Type", "text/plain")
@@ -91,17 +92,22 @@ func (ig *IgdbClient) GetGames() error {
 
 	response, igdbError := ig.httpClient.Do(req)
 	if igdbError != nil {
-		return igdbError
+		return []models.GamesResponse{}, igdbError
 	}
 
 	defer response.Body.Close()
 
 	responseBody, readingError := io.ReadAll(response.Body)
 	if readingError != nil {
-		return readingError
+		return []models.GamesResponse{}, readingError
 	}
 
-	log.Printf("RESPONSE -> %s", string(responseBody))
+	resultObject := []models.GamesResponse{}
+	unmarshalError := json.Unmarshal(responseBody, &resultObject)
 
-	return nil
+	if unmarshalError != nil {
+		return []models.GamesResponse{}, unmarshalError
+	}
+
+	return resultObject, nil
 }
