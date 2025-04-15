@@ -16,6 +16,11 @@ type ServerConfiguration struct {
 
 func NewServerConfiguration() ServerConfiguration {
 	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+		log.Println("Port not set, defaulting to 8080")
+	}
+
 	address := fmt.Sprintf(":%s", port)
 
 	return ServerConfiguration{Address: address, Port: port, HttpClient: &http.Client{}}
@@ -26,14 +31,14 @@ type ApiServer struct {
 	HttpClient *http.Client
 }
 
-func NewApiServer(serverConfig ServerConfiguration) ApiServer {
-	return ApiServer{
+func NewApiServer(serverConfig ServerConfiguration) *ApiServer {
+	return &ApiServer{
 		Address:    serverConfig.Address,
 		HttpClient: serverConfig.HttpClient,
 	}
 }
 
-func (a *ApiServer) RunServer() {
+func (a *ApiServer) RunServer() error {
 	environment := os.Getenv("ENVIRONMENT")
 
 	server := http.Server{
@@ -51,5 +56,5 @@ func (a *ApiServer) RunServer() {
 		log.Printf("Server is up and running!")
 	}
 
-	log.Fatal(server.ListenAndServe())
+	return server.ListenAndServe()
 }

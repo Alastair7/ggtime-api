@@ -17,5 +17,7 @@ func main() {
 	serverConfig := server.NewServerConfiguration()
 	server := server.NewApiServer(serverConfig)
 
-	server.RunServer()
+	if serverErr := server.RunServer(); serverErr != nil {
+		log.Fatal(serverErr)
+	}
 }
