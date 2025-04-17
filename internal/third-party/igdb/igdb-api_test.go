@@ -5,89 +5,127 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"net/http"
-	"strings"
 	"testing"
+
+	"github.com/Alastair7/ggtime-api/internal/models"
 )
 
-type MockTransport struct {
-	MockResponse *http.Response
-	MockError    error
+type MockDoer struct {
+	response *http.Response
+	err      error
 }
 
-func (m *MockTransport) RoundTrip(*http.Request) (*http.Response, error) {
-	return m.MockResponse, m.MockError
+func (m *MockDoer) Do(req *http.Request) (*http.Response, error) {
+	return m.response, m.err
 }
 
-func TestAuthenticate(t *testing.T) {
-	t.Run("Return error when response is not success", func(t *testing.T) {
+type MockAuthenticator struct {
+	token string
+	err   error
+}
 
+func (m *MockAuthenticator) Authenticate() (string, error) {
+	return m.token, m.err
+}
+
+func TestGetGames(t *testing.T) {
+	t.Run("Return error when authentication fails", func(t *testing.T) {
 		expected := "IGDB service error"
 
-		mockTransport := &MockTransport{
-			MockResponse: nil,
-			MockError:    errors.New(expected),
-		}
-		httpClient := &http.Client{
-			Transport: mockTransport,
-		}
+		mockAuthenticator := &MockAuthenticator{token: "", err: errors.New(expected)}
+		mockDoer := &MockDoer{}
 
-		sut := NewIgdbClient(httpClient)
+		sut := NewIgdbClient(mockDoer, mockAuthenticator)
 
-		token, authenticateError := sut.Authenticate()
-		print(authenticateError)
+		games, responseError := sut.GetGames(Pagination{Limit: 10})
 
-		if token != "" {
-			t.Fatalf("Expected error but got %s", token)
+		if responseError == nil {
+			t.Fatalf("Expected error but got %v", games)
 		}
 
-		if !strings.Contains(authenticateError.Error(), expected) {
-			t.Fatalf("Expected %s but got %s",
-				expected, authenticateError.Error())
+		if responseError.Error() != expected {
+			t.Fatalf("Expected %s but got %s", expected, responseError.Error())
 		}
+
 	})
 
-	t.Run("Return token when response is success", func(t *testing.T) {
-		expected := "token-123"
-		tokenData := struct {
-			AccessToken string `json:"access_token"`
-			ExpiresIn   int64  `json:"expires_in"`
-			TokenType   string `json:"token_type"`
-		}{
-			AccessToken: expected,
-			ExpiresIn:   1,
-			TokenType:   "user_access",
+	t.Run("Return error when response is not success", func(t *testing.T) {
+		expected := "IGDB error response"
+		mockAuthenticator := &MockAuthenticator{token: "token-123", err: nil}
+		mockDoer := &MockDoer{
+			response: nil,
+			err:      errors.New(expected),
 		}
 
-		tokenBytes, marhsalError := json.Marshal(tokenData)
-		if marhsalError != nil {
-			t.Fatalf("Expected %s but got %v", expected, marhsalError)
+		sut := NewIgdbClient(mockDoer, mockAuthenticator)
+
+		_, responseError := sut.GetGames(Pagination{Limit: 10})
+
+		if responseError == nil {
+			t.Fatalf("Expected %s but got no error", expected)
 		}
 
-		responseBody := io.NopCloser(bytes.NewReader(tokenBytes))
+		if responseError.Error() != expected {
+			t.Fatalf("Expected %s but got %s", expected, responseError.Error())
+		}
 
-		mockTransport := &MockTransport{
-			MockResponse: &http.Response{
-				StatusCode: 200,
-				Body:       responseBody,
+	})
+
+	t.Run("Return games list when response is success", func(t *testing.T) {
+		gamesList := []models.GamesResponse{
+			{
+				Id:       1,
+				Name:     "Test Game",
+				Category: 1,
+				Rating:   []int{10},
 			},
-			MockError: nil,
+			{
+				Id:       2,
+				Name:     "Another game",
+				Category: 2,
+				Rating:   []int{10},
+			},
 		}
 
-		httpClient := &http.Client{
-			Transport: mockTransport,
+		gamesListBytes, marshalErr := json.Marshal(gamesList)
+		if marshalErr != nil {
+			t.Fatalf("Expected %v bit gpt %s",
+				gamesList,
+				marshalErr.Error())
 		}
 
-		sut := NewIgdbClient(httpClient)
-
-		token, authenticateError := sut.Authenticate()
-		if authenticateError != nil {
-			log.Fatalf("Expected %s but got %v", expected, authenticateError)
+		expected := &http.Response{
+			StatusCode: 200,
+			Body:       io.NopCloser(bytes.NewReader(gamesListBytes)),
 		}
 
-		if token != expected {
-			t.Fatalf("Expected %s but got %s", expected, token)
+		mockAuthenticator := &MockAuthenticator{token: "token-123", err: nil}
+		mockDoer := &MockDoer{
+			response: expected,
+			err:      nil,
+		}
+
+		sut := NewIgdbClient(mockDoer, mockAuthenticator)
+
+		gamesResult, responseError := sut.GetGames(Pagination{Limit: 10})
+
+		if responseError != nil {
+			t.Fatalf("Expected %v but got %s",
+				gamesList,
+				responseError.Error())
+		}
+
+		if len(gamesResult) != 2 {
+			t.Fatalf("Expected %d but got %d",
+				len(gamesList),
+				len(gamesResult))
+		}
+
+		if gamesResult[0].Name != gamesList[0].Name {
+			t.Fatalf("Expected %s but got %s",
+				gamesList[0].Name,
+				gamesResult[0].Name)
 		}
 
 	})

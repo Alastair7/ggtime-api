@@ -10,7 +10,7 @@ import (
 func InitRouter(httpClient *http.Client) http.Handler {
 	mux := http.NewServeMux()
 
-	igdbService := igdb.NewIgdbClient(httpClient)
+	igdbService := initializeIgdbClient(httpClient)
 
 	healthcheckHandler := &handlers.HealthCheckHandler{}
 	gamesHandler := handlers.NewGamesHandler(igdbService)
@@ -20,4 +20,11 @@ func InitRouter(httpClient *http.Client) http.Handler {
 	mux.HandleFunc("/api/videogames", gamesHandler.Get)
 
 	return mux
+}
+
+func initializeIgdbClient(httpClient *http.Client) *igdb.IgdbClient {
+	authenticator := igdb.NewRealAuthenticator(httpClient)
+	doer := igdb.NewRealDoer(httpClient)
+
+	return igdb.NewIgdbClient(doer, authenticator)
 }
