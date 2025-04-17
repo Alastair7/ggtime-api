@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Alastair7/ggtime-api/internal/api/handlers"
+	"github.com/Alastair7/ggtime-api/internal/middleware"
 	"github.com/Alastair7/ggtime-api/internal/third-party/igdb"
 )
 
@@ -16,10 +17,11 @@ func InitRouter(httpClient *http.Client) http.Handler {
 	gamesHandler := handlers.NewGamesHandler(igdbService)
 
 	mux.HandleFunc("/api/healthcheck", healthcheckHandler.Get)
-
 	mux.HandleFunc("/api/videogames", gamesHandler.Get)
 
-	return mux
+	wrappedMux := middleware.NewLogger(mux)
+
+	return wrappedMux
 }
 
 func initializeIgdbClient(httpClient *http.Client) *igdb.IgdbClient {
