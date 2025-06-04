@@ -12,36 +12,7 @@ import (
 	"github.com/Alastair7/ggtime-api/internal/models"
 )
 
-type Doer interface {
-	Do(req *http.Request) (*http.Response, error)
-}
-
-type Authenticator interface {
-	Authenticate() (string, error)
-}
-
-type RealDoer struct {
-	httpClient *http.Client
-}
-
-func NewRealDoer(httpClient *http.Client) *RealDoer {
-
-	return &RealDoer{httpClient: httpClient}
-}
-
-func (d *RealDoer) Do(req *http.Request) (*http.Response, error) {
-	return d.httpClient.Do(req)
-}
-
-type RealAuthenticator struct {
-	httpClient *http.Client
-}
-
-func NewRealAuthenticator(httpClient *http.Client) *RealAuthenticator {
-	return &RealAuthenticator{httpClient: httpClient}
-}
-
-func (a *RealAuthenticator) Authenticate() (string, error) {
+func authenticate() (string, error) {
 	uri, parsingError := url.Parse("https://id.twitch.tv/oauth2/token")
 
 	if parsingError != nil {
@@ -56,7 +27,7 @@ func (a *RealAuthenticator) Authenticate() (string, error) {
 
 	uri.RawQuery = params.Encode()
 
-	response, igdbError := a.httpClient.Post(uri.String(), "application/json", nil)
+	response, igdbError := httpClient.Post(uri.String(), "application/json", nil)
 
 	if igdbError != nil {
 		return "", igdbError
@@ -84,9 +55,8 @@ func (a *RealAuthenticator) Authenticate() (string, error) {
 }
 
 type IgdbClient struct {
-	baseUrl       string
-	authenticator Authenticator
-	doer          Doer
+	baseUrl    string
+	httpClient *http.Client
 }
 
 type Pagination struct {
@@ -94,12 +64,11 @@ type Pagination struct {
 	Limit  int
 }
 
-func NewIgdbClient(doer Doer, authenticator Authenticator) *IgdbClient {
+func NewIgdbClient(httpClient *http.Client) *IgdbClient {
 
 	return &IgdbClient{
-		baseUrl:       "https://api.igdb.com/v4",
-		doer:          doer,
-		authenticator: authenticator,
+		httpClient: httpClient,
+		baseUrl:    "https://api.igdb.com/v4",
 	}
 }
 

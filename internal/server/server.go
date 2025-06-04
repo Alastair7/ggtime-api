@@ -14,7 +14,7 @@ type ServerConfiguration struct {
 	HttpClient *http.Client
 }
 
-func NewServerConfiguration() ServerConfiguration {
+func NewServerConfiguration(httpClient *http.Client) ServerConfiguration {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -23,7 +23,7 @@ func NewServerConfiguration() ServerConfiguration {
 
 	address := fmt.Sprintf(":%s", port)
 
-	return ServerConfiguration{Address: address, Port: port, HttpClient: &http.Client{}}
+	return ServerConfiguration{Address: address, Port: port, HttpClient: httpClient}
 }
 
 type ApiServer struct {
