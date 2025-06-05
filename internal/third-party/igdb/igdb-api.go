@@ -13,16 +13,22 @@ type IgdbClient struct {
 	httpClient *http.Client
 }
 
+func NewIgdbClient(httpClient *http.Client) *IgdbClient {
+	return &IgdbClient{
+		httpClient: httpClient,
+		baseUrl:    "https://api.igdb.com/v4",
+	}
+}
+
 type Pagination struct {
 	Offset int `json:"offset"`
 	Limit  int `json:"limit"`
 }
 
-func NewIgdbClient(httpClient *http.Client) *IgdbClient {
-
-	return &IgdbClient{
-		httpClient: httpClient,
-		baseUrl:    "https://api.igdb.com/v4",
+func NewPagination() Pagination {
+	return Pagination{
+		Limit:  10,
+		Offset: 0,
 	}
 }
 

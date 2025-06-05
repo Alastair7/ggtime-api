@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 
@@ -20,16 +21,14 @@ func NewGamesHandler(igdbClient *igdb.IgdbClient) *GamesHandler {
 }
 
 func (g *GamesHandler) GetAll(w http.ResponseWriter, req *http.Request) {
-	var paginationRequest igdb.Pagination
+	paginationRequest := igdb.NewPagination()
 
-	reqBody, reqError := req.GetBody()
-	if reqError != nil {
-		log.Fatalf("Error with the request body : %v", reqError)
-	}
-
-	decodingErr := json.NewDecoder(reqBody).Decode(&paginationRequest)
-	if decodingErr != nil {
-		log.Fatalf("Error while decoding the request body : %v", reqError)
+	if req.Body != nil {
+		defer req.Body.Close()
+		decodingErr := json.NewDecoder(req.Body).Decode(&paginationRequest)
+		if decodingErr != nil && decodingErr != io.EOF {
+			log.Fatalf("Error while decoding the request body : %v", decodingErr)
+		}
 	}
 
 	result, igdbError := g.IgdbClient.Games_GetAll(paginationRequest)
