@@ -11,7 +11,7 @@ import (
 	"github.com/Alastair7/ggtime-api/internal/models"
 )
 
-func (ig *IgdbClient) GetAll(pagination Pagination) ([]models.GamesResponse, error) {
+func (ig *IgdbClient) Games_GetAll(pagination Pagination) ([]models.GamesResponse, error) {
 	query := "fields name;limit 10;"
 
 	uri, parsingError := url.Parse(ig.baseUrl)
