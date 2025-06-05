@@ -14,11 +14,12 @@ func InitRouter(httpClient *http.Client) http.Handler {
 	igdbService := initializeIgdbClient(httpClient)
 
 	healthcheckHandler := &handlers.HealthCheckHandler{}
+
 	gamesHandler := handlers.NewGamesHandler(igdbService)
+	gamesGetAll := middleware.NewAuthorizer(http.HandlerFunc(gamesHandler.GetAll))
 
 	mux.HandleFunc("/api/healthcheck", healthcheckHandler.Get)
-	mux.HandleFunc("/api/videogames", gamesHandler.GetAll)
-
+	mux.Handle("/api/videogames", gamesGetAll)
 	wrappedMux := middleware.NewLogger(mux)
 
 	return wrappedMux
