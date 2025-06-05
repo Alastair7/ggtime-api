@@ -8,13 +8,13 @@ import (
 	"time"
 )
 
-type ServerConfiguration struct {
+type ApiServer struct {
 	Address    string
 	Port       string
 	HttpClient *http.Client
 }
 
-func NewServerConfiguration(httpClient *http.Client) ServerConfiguration {
+func NewApiServer(httpClient *http.Client) *ApiServer {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -23,22 +23,14 @@ func NewServerConfiguration(httpClient *http.Client) ServerConfiguration {
 
 	address := fmt.Sprintf(":%s", port)
 
-	return ServerConfiguration{Address: address, Port: port, HttpClient: httpClient}
-}
-
-type ApiServer struct {
-	Address    string
-	HttpClient *http.Client
-}
-
-func NewApiServer(serverConfig ServerConfiguration) *ApiServer {
 	return &ApiServer{
-		Address:    serverConfig.Address,
-		HttpClient: serverConfig.HttpClient,
+		Address:    address,
+		Port:       port,
+		HttpClient: httpClient,
 	}
 }
 
-func (a *ApiServer) RunServer() error {
+func (a *ApiServer) StartServer() error {
 	environment := os.Getenv("ENVIRONMENT")
 
 	server := http.Server{
@@ -46,9 +38,6 @@ func (a *ApiServer) RunServer() error {
 		Handler:           InitRouter(a.HttpClient),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
-
-	log.Println("GET /api/checkhealth")
-	fmt.Println()
 
 	if environment != "production" {
 		log.Printf("Server is running on port: %s", server.Addr)

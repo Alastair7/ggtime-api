@@ -3,7 +3,6 @@ package igdb
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -12,7 +11,25 @@ import (
 	"github.com/Alastair7/ggtime-api/internal/models"
 )
 
-func authenticate() (string, error) {
+type IgdbClient struct {
+	baseUrl    string
+	httpClient *http.Client
+}
+
+type Pagination struct {
+	Offset int `json:"offset"`
+	Limit  int `json:"limit"`
+}
+
+func NewIgdbClient(httpClient *http.Client) *IgdbClient {
+
+	return &IgdbClient{
+		httpClient: httpClient,
+		baseUrl:    "https://api.igdb.com/v4",
+	}
+}
+
+func (ig *IgdbClient) authenticate() (string, error) {
 	uri, parsingError := url.Parse("https://id.twitch.tv/oauth2/token")
 
 	if parsingError != nil {
@@ -27,7 +44,8 @@ func authenticate() (string, error) {
 
 	uri.RawQuery = params.Encode()
 
-	response, igdbError := httpClient.Post(uri.String(), "application/json", nil)
+	response, igdbError := ig.httpClient.Post(uri.String(), "application/json",
+		nil)
 
 	if igdbError != nil {
 		return "", igdbError
@@ -54,27 +72,8 @@ func authenticate() (string, error) {
 	return tokenData.AccessToken, nil
 }
 
-type IgdbClient struct {
-	baseUrl    string
-	httpClient *http.Client
-}
-
-type Pagination struct {
-	Offset int
-	Limit  int
-}
-
-func NewIgdbClient(httpClient *http.Client) *IgdbClient {
-
-	return &IgdbClient{
-		httpClient: httpClient,
-		baseUrl:    "https://api.igdb.com/v4",
-	}
-}
-
 func (ig *IgdbClient) GetGames(pagination Pagination) ([]models.GamesResponse, error) {
-	paginationQuery := generatePaginationQuery(pagination)
-	query := fmt.Sprintf("fields age_ratings,name,game_type;%s", paginationQuery)
+	query := "fields name;limit 10;"
 
 	uri, parsingError := url.Parse(ig.baseUrl)
 
@@ -86,7 +85,8 @@ func (ig *IgdbClient) GetGames(pagination Pagination) ([]models.GamesResponse, e
 
 	bodyData := bytes.NewBufferString(query)
 
-	token, authenticationError := ig.authenticator.Authenticate()
+	token, authenticationError := ig.authenticate()
+
 	if authenticationError != nil {
 		return []models.GamesResponse{}, authenticationError
 	}
@@ -95,11 +95,12 @@ func (ig *IgdbClient) GetGames(pagination Pagination) ([]models.GamesResponse, e
 	if requestError != nil {
 		return []models.GamesResponse{}, requestError
 	}
+
 	req.Header.Add("Authorization", "Bearer "+token)
-	req.Header.Add("Content-Type", "text/plain")
+	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Client-ID", os.Getenv("IGDB_CLIENT_ID"))
 
-	response, igdbError := ig.doer.Do(req)
+	response, igdbError := ig.httpClient.Do(req)
 	if igdbError != nil {
 		return []models.GamesResponse{}, igdbError
 	}
@@ -119,16 +120,4 @@ func (ig *IgdbClient) GetGames(pagination Pagination) ([]models.GamesResponse, e
 	}
 
 	return resultObject, nil
-}
-
-func generatePaginationQuery(pagination Pagination) string {
-	if pagination.Limit == 0 {
-		return "limit 10;"
-	}
-
-	if pagination.Limit != 0 && pagination.Offset == 0 {
-		return fmt.Sprintf("limit %d;", pagination.Limit)
-	}
-
-	return fmt.Sprintf("limit %d;offset %d;", pagination.Limit, pagination.Offset)
 }

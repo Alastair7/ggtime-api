@@ -25,8 +25,6 @@ func InitRouter(httpClient *http.Client) http.Handler {
 }
 
 func initializeIgdbClient(httpClient *http.Client) *igdb.IgdbClient {
-	authenticator := igdb.NewRealAuthenticator(httpClient)
-	doer := igdb.NewRealDoer(httpClient)
 
-	return igdb.NewIgdbClient(doer, authenticator)
+	return igdb.NewIgdbClient(httpClient)
 }
