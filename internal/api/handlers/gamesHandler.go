@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"bufio"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -20,7 +19,7 @@ func NewGamesHandler(igdbClient *igdb.IgdbClient) *GamesHandler {
 	}
 }
 
-func (g *GamesHandler) Get(w http.ResponseWriter, req *http.Request) {
+func (g *GamesHandler) GetAll(w http.ResponseWriter, req *http.Request) {
 	var paginationRequest igdb.Pagination
 
 	reqBody, reqError := req.GetBody()
