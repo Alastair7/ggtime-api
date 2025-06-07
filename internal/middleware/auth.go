@@ -23,7 +23,8 @@ func (a *Authorizer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	a.handler.ServeHTTP(rw, r)
 	// If Token is expired - 401
 	// If not authenticated - 403
+
+	a.handler.ServeHTTP(rw, r)
 }
