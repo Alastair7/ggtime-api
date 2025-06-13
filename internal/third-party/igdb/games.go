@@ -34,8 +34,8 @@ func (ig *IgdbClient) Games_GetAll(pagination Pagination) ([]models.GamesRespons
 	}
 
 	req.Header.Add("Authorization", "Bearer "+token)
+	req.Header.Add("Client-ID", ig.config.ClientId)
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Client-ID", os.Getenv("IGDB_CLIENT_ID"))
 
 	response, igdbError := ig.httpClient.Do(req)
 	if igdbError != nil {

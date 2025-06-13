@@ -5,18 +5,26 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 )
+
+type IgdbConfig struct {
+	AuthUrl      string
+	ClientId     string
+	ClientSecret string
+	GrantType    string
+}
 
 type IgdbClient struct {
 	baseUrl    string
 	httpClient *http.Client
+	config     *IgdbConfig
 }
 
-func NewIgdbClient(httpClient *http.Client) *IgdbClient {
+func NewIgdbClient(httpClient *http.Client, config *IgdbConfig) *IgdbClient {
 	return &IgdbClient{
 		httpClient: httpClient,
 		baseUrl:    "https://api.igdb.com/v4",
+		config:     config,
 	}
 }
 
@@ -33,7 +41,7 @@ func NewPagination() Pagination {
 }
 
 func (ig *IgdbClient) authenticate() (string, error) {
-	uri, parsingError := url.Parse("https://id.twitch.tv/oauth2/token")
+	uri, parsingError := url.Parse(ig.config.AuthUrl)
 
 	if parsingError != nil {
 		return "", parsingError
@@ -41,9 +49,9 @@ func (ig *IgdbClient) authenticate() (string, error) {
 
 	params := uri.Query()
 
-	params.Add("client_id", os.Getenv("IGDB_CLIENT_ID"))
-	params.Add("client_secret", os.Getenv("IGDB_CLIENT_SECRET"))
-	params.Add("grant_type", "client_credentials")
+	params.Add("client_id", ig.config.ClientId)
+	params.Add("client_secret", ig.config.ClientSecret)
+	params.Add("grant_type", ig.config.GrantType)
 
 	uri.RawQuery = params.Encode()
 
@@ -61,12 +69,7 @@ func (ig *IgdbClient) authenticate() (string, error) {
 		return "", readError
 	}
 
-	tokenData := struct {
-		AccessToken string `json:"access_token"`
-		ExpiresIn   int64  `json:"expires_in"`
-		TokenType   string `json:"token_type"`
-	}{}
-
+	tokenData := &AuthenticateResponse{}
 	unmarshalError := json.Unmarshal(responseBody, &tokenData)
 	if unmarshalError != nil {
 		return "", unmarshalError

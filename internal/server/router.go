@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/Alastair7/ggtime-api/internal/api/handlers"
 	"github.com/Alastair7/ggtime-api/internal/middleware"
@@ -26,6 +27,12 @@ func InitRouter(httpClient *http.Client) http.Handler {
 }
 
 func initializeIgdbClient(httpClient *http.Client) *igdb.IgdbClient {
+	config := &igdb.IgdbConfig{
+		AuthUrl:      os.Getenv("IGDB_AUTH_URL"),
+		ClientId:     os.Getenv("IGDB_CLIENT_ID"),
+		ClientSecret: os.Getenv("IGDB_CLIENT_SECRET"),
+		GrantType:    os.Getenv("IGDB_GRANT_TYPE"),
+	}
 
-	return igdb.NewIgdbClient(httpClient)
+	return igdb.NewIgdbClient(httpClient, config)
 }
