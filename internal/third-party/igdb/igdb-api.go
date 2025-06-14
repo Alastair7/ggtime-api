@@ -55,6 +55,7 @@ func (ig *IgdbClient) authenticate() (string, error) {
 
 	uri.RawQuery = params.Encode()
 
+	println(uri.String())
 	response, igdbError := ig.httpClient.Post(uri.String(), "application/json",
 		nil)
 

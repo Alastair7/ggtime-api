@@ -71,7 +71,7 @@ func TestAuthenticate(t *testing.T) {
 
 func newTestIgdbConfig() *IgdbConfig {
 	return &IgdbConfig{
-		AuthUrl:      "https://test.test/",
+		AuthUrl:      "https://auth.test/auth",
 		ClientId:     "123",
 		ClientSecret: "123",
 		GrantType:    "test_credentials",
