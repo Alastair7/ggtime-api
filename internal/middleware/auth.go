@@ -16,12 +16,14 @@ func (a *Authorizer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		statusCode:     http.StatusOK,
 	}
 
-	token := r.Header.Get("Authorization")
-	if token == "" {
-		rw.statusCode = http.StatusUnauthorized
-		rw.WriteHeader(http.StatusUnauthorized)
-		return
-	}
+	// UNCOMMENT WHEN AUTH DEVELOPMENT IS IN PROGRESS
+
+	// token := r.Header.Get("Authorization")
+	// if token == "" {
+	// 	rw.statusCode = http.StatusUnauthorized
+	// 	rw.WriteHeader(http.StatusUnauthorized)
+	// 	return
+	// }
 
 	// If Token is expired - 401
 	// If not authenticated - 403
