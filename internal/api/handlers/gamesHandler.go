@@ -45,3 +45,6 @@ func (g *GamesHandler) GetAll(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 }
+
+func (g *GamesHandler) GetById(w http.ResponseWriter, req *http.Request) {
+}

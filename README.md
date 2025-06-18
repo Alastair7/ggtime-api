@@ -4,7 +4,7 @@
 ## How to run
 1. Clone the project.
 2. `cd ggtime-api`
-3. go run cmd/api-server/main.go
+3. go run `cmd/api-server/main.go` or `go run ./...`
 
 ### Run with docker
 1. `docker build -t ggtime-api:latest .`
