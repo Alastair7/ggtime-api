@@ -1,6 +1,7 @@
 package igdb
 
 type Game struct {
+	Id          int    `json:"id"`
 	Name        string `json:"name"`
 	Genres      []int  `json:"genres"`
 	Slug        string `json:"slug"`

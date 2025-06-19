@@ -7,15 +7,16 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/Alastair7/ggtime-api/internal/models"
+	"github.com/Alastair7/ggtime-api/internal/models/domain"
+	"github.com/Alastair7/ggtime-api/internal/models/igdb"
 )
 
-func (ig *IgdbClient) Games_GetAll(pagination Pagination) ([]models.GamesResponse, error) {
-	query := "fields name;limit 10;"
+func (ig *IgdbClient) Games_GetAll(pagination Pagination) ([]domain.Game, error) {
+	query := "fields id,name,slug,genres,platforms,first_release_date,summary;limit 10;"
 
 	uri, parsingError := url.Parse(ig.baseUrl)
 	if parsingError != nil {
-		return []models.GamesResponse{}, parsingError
+		return []domain.Game{}, parsingError
 	}
 
 	uri = uri.JoinPath("games")
@@ -24,12 +25,12 @@ func (ig *IgdbClient) Games_GetAll(pagination Pagination) ([]models.GamesRespons
 
 	token, authenticationError := ig.authenticate()
 	if authenticationError != nil {
-		return []models.GamesResponse{}, authenticationError
+		return []domain.Game{}, authenticationError
 	}
 
 	req, requestError := http.NewRequest("POST", uri.String(), bodyData)
 	if requestError != nil {
-		return []models.GamesResponse{}, requestError
+		return []domain.Game{}, requestError
 	}
 
 	req.Header.Add("Authorization", "Bearer "+token)
@@ -38,22 +39,23 @@ func (ig *IgdbClient) Games_GetAll(pagination Pagination) ([]models.GamesRespons
 
 	response, igdbError := ig.httpClient.Do(req)
 	if igdbError != nil {
-		return []models.GamesResponse{}, igdbError
+		return []domain.Game{}, igdbError
 	}
 
 	defer response.Body.Close()
 
 	responseBody, readingError := io.ReadAll(response.Body)
 	if readingError != nil {
-		return []models.GamesResponse{}, readingError
+		return []domain.Game{}, readingError
 	}
 
-	resultObject := []models.GamesResponse{}
-	unmarshalError := json.Unmarshal(responseBody, &resultObject)
+	igdbResponse := []igdb.Game{}
+	unmarshalError := json.Unmarshal(responseBody, &igdbResponse)
 
 	if unmarshalError != nil {
-		return []models.GamesResponse{}, unmarshalError
+		return []domain.Game{}, unmarshalError
 	}
 
-	return resultObject, nil
+	games := igdb.MapIgdbGamesToGames(igdbResponse)
+	return games, nil
 }

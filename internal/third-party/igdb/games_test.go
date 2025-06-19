@@ -47,7 +47,7 @@ func TestGames_GetAll(t *testing.T) {
 
 	})
 	t.Run("When games retrieved then return list", func(t *testing.T) {
-		resultObject := []models.GamesResponse{
+		resultObject := []models.Game{
 			{
 				Id:       1,
 				Category: 0,

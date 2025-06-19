@@ -1,7 +1,8 @@
 package domain
 
 type Genre struct {
-	BaseModel
+	Id   int
+	Slug string
 }
 
 type Platform struct {
@@ -14,6 +15,5 @@ type Game struct {
 	Summary     string
 	Genres      []Genre
 	Platforms   []Platform
-	Author      string
 	ReleaseDate int64
 }
