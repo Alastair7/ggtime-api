@@ -1,7 +1,7 @@
 package igdb
 
 import (
-	"github.com/Alastair7/ggtime-api/internal/models/domain"
+	"github.com/Alastair7/ggtime-api/models/domain"
 )
 
 func MapIgdbGamesToGames(games []Game) []domain.Game {

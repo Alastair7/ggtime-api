@@ -9,8 +9,6 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/Alastair7/ggtime-api/internal/models"
 )
 
 func TestGames_GetAll(t *testing.T) {

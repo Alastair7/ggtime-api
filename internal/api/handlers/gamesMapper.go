@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/Alastair7/ggtime-api/internal/models/domain"
-	"github.com/Alastair7/ggtime-api/internal/models/dto"
+	"github.com/Alastair7/ggtime-api/models/domain"
+	"github.com/Alastair7/ggtime-api/models/dto"
 )
 
 func MapGameToGameDTO(game domain.Game) dto.GameDto {

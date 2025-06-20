@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Alastair7/ggtime-api/internal/models/dto"
 	igdbapi "github.com/Alastair7/ggtime-api/internal/third-party/igdb"
+	"github.com/Alastair7/ggtime-api/models/dto"
 )
 
 type GamesHandler struct {

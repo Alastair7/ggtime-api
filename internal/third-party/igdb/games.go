@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/Alastair7/ggtime-api/internal/models/domain"
-	igdbapi "github.com/Alastair7/ggtime-api/internal/models/igdb"
+	"github.com/Alastair7/ggtime-api/models/domain"
+	igdbapi "github.com/Alastair7/ggtime-api/models/igdb"
 )
 
 func (ig *IgdbClient) Games_GetAll(pagination Pagination) ([]domain.Game, error) {
