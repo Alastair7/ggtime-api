@@ -18,13 +18,15 @@ func MapGameToGameDTO(game domain.Game) dto.GameDto {
 	}
 
 	return dto.GameDto{
-		Id:          game.Id,
-		Name:        game.Name,
-		Slug:        game.Slug,
-		Summary:     game.Summary,
-		Genres:      genres,
-		Platforms:   platforms,
-		ReleaseDate: game.ReleaseDate,
+		Id:            game.Id,
+		Name:          game.Name,
+		Slug:          game.Slug,
+		Summary:       game.Summary,
+		Genres:        genres,
+		Platforms:     platforms,
+		ReleaseDate:   game.ReleaseDate,
+		CriticsRating: game.CriticsRating,
+		UsersRating:   game.UsersRating,
 	}
 }
 

@@ -14,10 +14,12 @@ func MapIgdbGamesToGames(games []Game) []domain.Game {
 				Name: g.Name,
 				Slug: g.Slug,
 			},
-			Summary:     g.Summary,
-			Genres:      ConvertGenresToString(g.Genres),
-			Platforms:   ConvertPlatformsToString(g.Platforms),
-			ReleaseDate: g.ReleaseDate,
+			Summary:       g.Summary,
+			Genres:        ConvertGenresToString(g.Genres),
+			Platforms:     ConvertPlatformsToString(g.Platforms),
+			ReleaseDate:   g.FirstReleaseDate,
+			UsersRating:   g.Rating,
+			CriticsRating: g.AggregatedRating,
 		}
 
 		models = append(models, domainModel)

@@ -7,14 +7,14 @@ import (
 	"net/http"
 
 	"github.com/Alastair7/ggtime-api/internal/models/dto"
-	"github.com/Alastair7/ggtime-api/internal/third-party/igdb"
+	igdbapi "github.com/Alastair7/ggtime-api/internal/third-party/igdb"
 )
 
 type GamesHandler struct {
-	IgdbClient *igdb.IgdbClient
+	IgdbClient *igdbapi.IgdbClient
 }
 
-func NewGamesHandler(igdbClient *igdb.IgdbClient) *GamesHandler {
+func NewGamesHandler(igdbClient *igdbapi.IgdbClient) *GamesHandler {
 
 	return &GamesHandler{
 		IgdbClient: igdbClient,
@@ -22,7 +22,7 @@ func NewGamesHandler(igdbClient *igdb.IgdbClient) *GamesHandler {
 }
 
 func (g *GamesHandler) GetAll(w http.ResponseWriter, req *http.Request) {
-	paginationRequest := igdb.NewPagination()
+	paginationRequest := igdbapi.NewPagination()
 
 	if req.Body != nil {
 		defer req.Body.Close()

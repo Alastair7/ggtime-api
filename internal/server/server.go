@@ -22,7 +22,7 @@ func NewApiServer(httpClient *http.Client) *ApiServer {
 	}
 
 	address := fmt.Sprintf(":%s", port)
-  
+
 	return &ApiServer{
 		Address:    address,
 		Port:       port,

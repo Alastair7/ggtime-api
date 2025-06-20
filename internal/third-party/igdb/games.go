@@ -8,11 +8,11 @@ import (
 	"net/url"
 
 	"github.com/Alastair7/ggtime-api/internal/models/domain"
-	"github.com/Alastair7/ggtime-api/internal/models/igdb"
+	igdbapi "github.com/Alastair7/ggtime-api/internal/models/igdb"
 )
 
 func (ig *IgdbClient) Games_GetAll(pagination Pagination) ([]domain.Game, error) {
-	query := "fields id,name,slug,genres,platforms,first_release_date,summary;limit 10;"
+	query := "fields id,name,slug,genres,platforms,first_release_date,summary,aggregated_rating,rating; where platforms = 48;limit 100;"
 
 	uri, parsingError := url.Parse(ig.baseUrl)
 	if parsingError != nil {
@@ -49,13 +49,13 @@ func (ig *IgdbClient) Games_GetAll(pagination Pagination) ([]domain.Game, error)
 		return []domain.Game{}, readingError
 	}
 
-	igdbResponse := []igdb.Game{}
+	igdbResponse := []igdbapi.Game{}
 	unmarshalError := json.Unmarshal(responseBody, &igdbResponse)
 
 	if unmarshalError != nil {
 		return []domain.Game{}, unmarshalError
 	}
 
-	games := igdb.MapIgdbGamesToGames(igdbResponse)
+	games := igdbapi.MapIgdbGamesToGames(igdbResponse)
 	return games, nil
 }
