@@ -16,6 +16,7 @@ func MapIgdbGamesToGames(games []Game) []domain.Game {
 			},
 			Summary:     g.Summary,
 			Genres:      ConvertGenresToString(g.Genres),
+			Platforms:   ConvertPlatformsToString(g.Platforms),
 			ReleaseDate: g.ReleaseDate,
 		}
 
@@ -40,4 +41,21 @@ func ConvertGenresToString(genres []int) []domain.Genre {
 	}
 
 	return genreNames
+}
+
+func ConvertPlatformsToString(platforms []int) []domain.Platform {
+	platformNames := make([]domain.Platform, 0, len(platforms))
+
+	for _, p := range platforms {
+		platformEnum := domain.PlatformEnum(p)
+
+		domainPlatform := domain.Platform{
+			Id:   p,
+			Slug: platformEnum.String(),
+		}
+
+		platformNames = append(platformNames, domainPlatform)
+	}
+
+	return platformNames
 }

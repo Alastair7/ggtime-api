@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Alastair7/ggtime-api/internal/models/dto"
 	"github.com/Alastair7/ggtime-api/internal/third-party/igdb"
 )
 
@@ -37,10 +38,15 @@ func (g *GamesHandler) GetAll(w http.ResponseWriter, req *http.Request) {
 		log.Fatalf("Error with IGDB Service: %v", igdbError)
 	}
 
+	resultDto := make([]dto.GameDto, 0, len(result))
+	for _, r := range result {
+		resultDto = append(resultDto, MapGameToGameDTO(r))
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	encodingError := json.NewEncoder(w).Encode(result)
+	encodingError := json.NewEncoder(w).Encode(resultDto)
 	if encodingError != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}

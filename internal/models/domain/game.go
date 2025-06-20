@@ -6,7 +6,8 @@ type Genre struct {
 }
 
 type Platform struct {
-	BaseModel
+	Id   int
+	Slug string
 }
 
 type Game struct {
