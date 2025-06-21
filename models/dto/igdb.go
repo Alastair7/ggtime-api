@@ -2,11 +2,13 @@ package dto
 
 type GenreDto struct {
 	Id   int    `json:"id"`
+	Name string `json:"name"`
 	Slug string `json:"slug"`
 }
 
 type PlatformDto struct {
 	Id   int    `json:"id"`
+	Name string `json:"name"`
 	Slug string `json:"slug"`
 }
 

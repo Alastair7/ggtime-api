@@ -33,6 +33,7 @@ func MapGameToGameDTO(game domain.Game) dto.GameDto {
 func MapGenreToGenreDTO(genre domain.Genre) dto.GenreDto {
 	return dto.GenreDto{
 		Id:   genre.Id,
+		Name: genre.Name,
 		Slug: genre.Slug,
 	}
 }
@@ -40,6 +41,7 @@ func MapGenreToGenreDTO(genre domain.Genre) dto.GenreDto {
 func MapPlatformToPlatformDto(platform domain.Platform) dto.PlatformDto {
 	return dto.PlatformDto{
 		Id:   platform.Id,
+		Name: platform.Name,
 		Slug: platform.Slug,
 	}
 }

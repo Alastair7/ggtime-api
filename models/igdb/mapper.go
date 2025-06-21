@@ -15,8 +15,8 @@ func MapIgdbGamesToGames(games []Game) []domain.Game {
 				Slug: g.Slug,
 			},
 			Summary:       g.Summary,
-			Genres:        ConvertGenresToString(g.Genres),
-			Platforms:     ConvertPlatformsToString(g.Platforms),
+			Genres:        MapApiGenresToDomain(g.Genres),
+			Platforms:     MapPlatformsToDomain(g.Platforms),
 			ReleaseDate:   g.FirstReleaseDate,
 			UsersRating:   g.Rating,
 			CriticsRating: g.AggregatedRating,
@@ -28,36 +28,35 @@ func MapIgdbGamesToGames(games []Game) []domain.Game {
 	return models
 }
 
-func ConvertGenresToString(genres []int) []domain.Genre {
-	genreNames := make([]domain.Genre, 0, len(genres))
+func MapApiGenresToDomain(genres []Genre) []domain.Genre {
+	domainGenres := make([]domain.Genre, 0, len(genres))
 
 	for _, g := range genres {
-		genreEnum := domain.GenreEnum(g)
 
 		domainGenre := domain.Genre{
-			Id:   g,
-			Slug: genreEnum.String(),
+			Id:   g.Id,
+			Name: g.Name,
+			Slug: g.Slug,
 		}
 
-		genreNames = append(genreNames, domainGenre)
+		domainGenres = append(domainGenres, domainGenre)
 	}
 
-	return genreNames
+	return domainGenres
 }
 
-func ConvertPlatformsToString(platforms []int) []domain.Platform {
-	platformNames := make([]domain.Platform, 0, len(platforms))
+func MapPlatformsToDomain(platforms []Platform) []domain.Platform {
+	domainPlatforms := make([]domain.Platform, 0, len(platforms))
 
 	for _, p := range platforms {
-		platformEnum := domain.PlatformEnum(p)
-
 		domainPlatform := domain.Platform{
-			Id:   p,
-			Slug: platformEnum.String(),
+			Id:   p.Id,
+			Name: p.Name,
+			Slug: p.Slug,
 		}
 
-		platformNames = append(platformNames, domainPlatform)
+		domainPlatforms = append(domainPlatforms, domainPlatform)
 	}
 
-	return platformNames
+	return domainPlatforms
 }

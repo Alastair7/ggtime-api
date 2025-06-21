@@ -12,7 +12,19 @@ import (
 )
 
 func (ig *IgdbClient) Games_GetAll(pagination Pagination) ([]domain.Game, error) {
-	query := "fields id,name,slug,genres,platforms,first_release_date,summary,aggregated_rating,rating; where platforms = 48;limit 100;"
+	query := `fields id,
+	name,
+	slug,
+	genres.id,
+	genres.name,
+	genres.slug,
+	platforms.id,
+	platforms.name,
+	platforms.slug,
+	first_release_date,
+	summary,
+	aggregated_rating,rating; 
+	limit 25;`
 
 	uri, parsingError := url.Parse(ig.baseUrl)
 	if parsingError != nil {

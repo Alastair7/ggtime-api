@@ -2,11 +2,13 @@ package domain
 
 type Genre struct {
 	Id   int
+	Name string
 	Slug string
 }
 
 type Platform struct {
 	Id   int
+	Name string
 	Slug string
 }
 
