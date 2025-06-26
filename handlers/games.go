@@ -6,23 +6,23 @@ import (
 	"log"
 	"net/http"
 
-	igdbapi "github.com/Alastair7/ggtime-api/internal/third-party/igdb"
 	"github.com/Alastair7/ggtime-api/models/dto"
+	"github.com/Alastair7/ggtime-api/services"
 )
 
 type GamesHandler struct {
-	IgdbClient *igdbapi.IgdbClient
+	GamesService *services.GamesService
 }
 
-func NewGamesHandler(igdbClient *igdbapi.IgdbClient) *GamesHandler {
+func NewGamesHandler(gamesService *services.GamesService) *GamesHandler {
 
 	return &GamesHandler{
-		IgdbClient: igdbClient,
+		GamesService: gamesService,
 	}
 }
 
 func (g *GamesHandler) GetAll(w http.ResponseWriter, req *http.Request) {
-	paginationRequest := igdbapi.NewPagination()
+	paginationRequest := dto.DefaultPaginationRequest()
 
 	if req.Body != nil {
 		defer req.Body.Close()
@@ -32,21 +32,16 @@ func (g *GamesHandler) GetAll(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	result, igdbError := g.IgdbClient.Games_GetAll(paginationRequest)
+	result, serviceErr := g.GamesService.GetAll(paginationRequest)
 
-	if igdbError != nil {
-		log.Fatalf("Error with IGDB Service: %v", igdbError)
-	}
-
-	resultDto := make([]dto.GameDto, 0, len(result))
-	for _, r := range result {
-		resultDto = append(resultDto, MapGameToGameDTO(r))
+	if serviceErr != nil {
+		log.Fatalf("Error with IGDB Service: %v", serviceErr)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	encodingError := json.NewEncoder(w).Encode(resultDto)
+	encodingError := json.NewEncoder(w).Encode(result)
 	if encodingError != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}

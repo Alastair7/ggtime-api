@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"fmt"
@@ -6,15 +6,18 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/Alastair7/ggtime-api/clients"
 )
 
 type ApiServer struct {
 	Address    string
 	Port       string
 	HttpClient *http.Client
+	IgdbClient *clients.IgdbClient
 }
 
-func NewApiServer(httpClient *http.Client) *ApiServer {
+func NewApiServer(httpClient *http.Client, igdbClient *clients.IgdbClient) *ApiServer {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -27,6 +30,7 @@ func NewApiServer(httpClient *http.Client) *ApiServer {
 		Address:    address,
 		Port:       port,
 		HttpClient: httpClient,
+		IgdbClient: igdbClient,
 	}
 }
 
@@ -35,7 +39,7 @@ func (a *ApiServer) StartServer() error {
 
 	server := http.Server{
 		Addr:              a.Address,
-		Handler:           InitRouter(a.HttpClient),
+		Handler:           AddRoutes(a.HttpClient, a.IgdbClient),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
