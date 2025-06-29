@@ -1,8 +1,6 @@
 package services
 
 import (
-	"log"
-
 	"github.com/Alastair7/ggtime-api/clients"
 	"github.com/Alastair7/ggtime-api/mappers"
 	"github.com/Alastair7/ggtime-api/models/dto"
@@ -22,7 +20,7 @@ func (g *GamesService) GetAll(paginationRequest dto.PaginationRequest) ([]dto.Ga
 	result, igdbError := g.IgdbClient.Games_GetAll(paginationRequest)
 
 	if igdbError != nil {
-		log.Fatalf("Error with IGDB Service: %v", igdbError)
+		return nil, igdbError
 	}
 
 	resultDto := make([]dto.GameDto, 0, len(result))

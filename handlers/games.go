@@ -8,6 +8,7 @@ import (
 
 	"github.com/Alastair7/ggtime-api/models/dto"
 	"github.com/Alastair7/ggtime-api/services"
+	"github.com/Alastair7/ggtime-api/utils"
 )
 
 type GamesHandler struct {
@@ -35,16 +36,10 @@ func (g *GamesHandler) GetAll(w http.ResponseWriter, req *http.Request) {
 	result, serviceErr := g.GamesService.GetAll(paginationRequest)
 
 	if serviceErr != nil {
-		log.Fatalf("Error with IGDB Service: %v", serviceErr)
+		utils.WriteErrJSON(w, http.StatusBadRequest, "GamesServiceError", serviceErr)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	encodingError := json.NewEncoder(w).Encode(result)
-	if encodingError != nil {
-		w.WriteHeader(http.StatusBadRequest)
-	}
+	utils.WriteJSON(w, http.StatusOK, result)
 }
 
 func (g *GamesHandler) GetById(w http.ResponseWriter, req *http.Request) {

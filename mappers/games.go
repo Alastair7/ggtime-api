@@ -6,8 +6,6 @@ import (
 	"github.com/Alastair7/ggtime-api/models/igdb"
 )
 
-// Client -> Domain
-
 // Converts from Game IGDB model to Game domain model
 func MapIgdbGamesToDomain(games []igdb.Game) []domain.Game {
 	models := make([]domain.Game, 0, len(games))
