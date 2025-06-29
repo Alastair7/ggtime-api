@@ -8,4 +8,4 @@ func NewHealthCheckHandler() *HealthCheckHandler {
 	return &HealthCheckHandler{}
 }
 
-func (h *HealthCheckHandler) Get(w http.ResponseWriter, r *http.Request) {}
+func (h *HealthCheckHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {}

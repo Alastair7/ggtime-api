@@ -1,4 +1,4 @@
-package handlers
+package videogames
 
 import (
 	"encoding/json"
@@ -40,7 +40,4 @@ func (g *GamesHandler) GetAll(w http.ResponseWriter, req *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusOK, result)
-}
-
-func (g *GamesHandler) GetById(w http.ResponseWriter, req *http.Request) {
 }
