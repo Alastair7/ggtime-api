@@ -16,8 +16,8 @@ func NewGamesService(igdbClient *clients.IgdbClient) *GamesService {
 	}
 }
 
-func (g *GamesService) GetAll(paginationRequest dto.PaginationRequest) ([]dto.GameDto, error) {
-	result, igdbError := g.IgdbClient.Games_GetAll(paginationRequest)
+func (g *GamesService) GetAll(pagination dto.PaginationRequest, filter dto.Filter) ([]dto.GameDto, error) {
+	result, igdbError := g.IgdbClient.Games_GetAll(pagination, filter)
 
 	if igdbError != nil {
 		return nil, igdbError

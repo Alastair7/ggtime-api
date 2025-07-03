@@ -1,5 +1,9 @@
 package dto
 
+type GetAllRequest struct {
+	Pagination PaginationRequest `json:"pagination"`
+	Filter     Filter            `json:"filter"`
+}
 type GenreDto struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`

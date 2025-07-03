@@ -22,17 +22,17 @@ func NewGamesHandler(gamesService *services.GamesService) *GamesHandler {
 }
 
 func (g *GamesHandler) GetAll(w http.ResponseWriter, req *http.Request) {
-	paginationRequest := dto.DefaultPaginationRequest()
+	requestDto := dto.GetAllRequest{}
 
 	if req.Body != nil {
 		defer req.Body.Close()
-		decodingErr := json.NewDecoder(req.Body).Decode(&paginationRequest)
+		decodingErr := json.NewDecoder(req.Body).Decode(&requestDto)
 		if decodingErr != nil && decodingErr != io.EOF {
 			utils.WriteErrJSON(w, http.StatusInternalServerError, "Internal Server Error", nil)
 		}
 	}
 
-	result, serviceErr := g.GamesService.GetAll(paginationRequest)
+	result, serviceErr := g.GamesService.GetAll(requestDto.Pagination, requestDto.Filter)
 
 	if serviceErr != nil {
 		utils.WriteErrJSON(w, http.StatusBadRequest, "VideogamesServiceError", serviceErr)

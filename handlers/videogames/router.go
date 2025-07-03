@@ -14,7 +14,7 @@ func VideogamesMux(igdbClient *clients.IgdbClient) http.Handler {
 
 	handler := NewGamesHandler(service)
 
-	mux.Handle("GET /", http.HandlerFunc(handler.GetAll))
+	mux.Handle("/", http.HandlerFunc(handler.GetAll))
 
-	return http.StripPrefix("/api/videogames", mux)
+	return mux
 }

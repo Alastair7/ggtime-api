@@ -3,9 +3,11 @@ package clients
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/Alastair7/ggtime-api/models/domain"
 	"github.com/Alastair7/ggtime-api/models/dto"
@@ -39,8 +41,11 @@ func NewPagination() Pagination {
 	}
 }
 
-func (ig *IgdbClient) Games_GetAll(pagination dto.PaginationRequest) ([]domain.Game, error) {
-	query := `fields id,
+func (ig *IgdbClient) Games_GetAll(pagination dto.PaginationRequest, filter dto.Filter) ([]domain.Game, error) {
+
+	filter_query := ig.setFilter(filter)
+
+	query := fmt.Sprintf(`fields id,
 	name,
 	slug,
 	genres.id,
@@ -52,7 +57,10 @@ func (ig *IgdbClient) Games_GetAll(pagination dto.PaginationRequest) ([]domain.G
 	first_release_date,
 	summary,
 	aggregated_rating,rating; 
-	limit 25;`
+	%s
+	limit %d;`, filter_query, pagination.Limit)
+
+	println(query)
 
 	uri, parsingError := url.Parse(ig.baseUrl)
 	if parsingError != nil {
@@ -136,4 +144,33 @@ func (ig *IgdbClient) authenticate() (string, error) {
 	}
 
 	return tokenData.AccessToken, nil
+}
+func (ig *IgdbClient) setFilter(filter dto.Filter) string {
+	var builder strings.Builder
+	addedCount := 0
+
+	if len(filter.Genres) >= 0 || len(filter.Platforms) >= 0 {
+		builder.WriteString("where ")
+	}
+
+	if len(filter.Genres) >= 1 {
+		genres := strings.Join(filter.Genres, ",")
+		builder.WriteString(fmt.Sprintf("genres.slug = (%s)", genres))
+		addedCount++
+	}
+
+	if len(filter.Platforms) >= 1 {
+		platforms := strings.Join(filter.Platforms, ",")
+		query := fmt.Sprintf("platforms.slug = (%s)", platforms)
+
+		if addedCount > 0 {
+			query = " & " + query
+		}
+
+		builder.WriteString(query)
+	}
+
+	builder.WriteString(";")
+
+	return builder.String()
 }
